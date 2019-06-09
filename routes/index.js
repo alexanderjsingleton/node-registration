@@ -44,7 +44,11 @@ router.post(
 // adding routing to retrieve user-registration stored on the local mongoDB
 
 router.get('/registrations', (req, res) => {
-	res.render('index', { title: 'Listening registrations' });
+	Registration.find()
+	.then((registrations) => {
+		res.render('index', { title: 'Listening registrations', registrations});
+	})
+	.catch(() => {res.send('Sorry!  Something went wrong.'); });
 });
 
 module.exports = router;
