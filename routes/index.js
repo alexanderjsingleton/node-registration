@@ -1,10 +1,14 @@
 const path = require('path');
+const auth = require('http-auth');
 const express = require('express');
 const mongoose = require('mongoose');
 const { body, validationResult } = require('express-validator/check');
 
 const router = express.Router();
 const Registration = mongoose.model('Registration');
+const basic = auth.basic({
+	file: path.join(__dirname, '../users.htpasswd'),
+});
 
 
 
@@ -43,12 +47,22 @@ router.post(
 
 // adding routing to retrieve user-registration stored on the local mongoDB
 
-router.get('/registrations', (req, res) => {
-	Registration.find()
-	.then((registrations) => {
-		res.render('index', { title: 'Listening registrations', registrations});
-	})
-	.catch(() => {res.send('Sorry!  Something went wrong.'); });
+// router.get('/registrations', (req, res) => {
+// 	Registration.find()
+// 	.then((registrations) => {
+// 		res.render('index', { title: 'Listening registrations', registrations});
+// 	})
+// 	.catch(() => {res.send('Sorry!  Something went wrong.'); });
+// });
+
+// added auth.connect function for http authentication
+
+router.get('/registrations', auth.connect(basic), (req, res) => {
+  Registration.find()
+    .then((registrations) => {
+      res.render('index', { title: 'Listing registrations', registrations });
+    })
+    .catch(() => { res.send('Sorry! Something went wrong.'); });
 });
 
 module.exports = router;
